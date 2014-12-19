@@ -29,7 +29,7 @@ specifying a client ID, client secret, and callback URL.
         callbackURL: "http://127.0.0.1:3000/auth/slice/callback"
       },
       function(accessToken, refreshToken, profile, done) {
-        User.findOrCreate({ githubId: profile.id }, function (err, user) {
+        User.findOrCreate({userEmail: profile.userEmail}, function (err, user) {
           return done(err, user);
         });
       }
@@ -47,7 +47,7 @@ application:
       passport.authenticate('slice'));
 
     app.get('/auth/slice/callback', 
-      passport.authenticate('slice', { failureRedirect: '/login' }),
+      passport.authenticate('slice', {failureRedirect: '/login'}),
       function(req, res) {
         // Successful authentication, redirect home.
         res.redirect('/');
