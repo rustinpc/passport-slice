@@ -7,7 +7,8 @@ This module lets you authenticate using Slice in your Node.js applications.
 By plugging into Passport, Slice authentication can be easily and
 unobtrusively integrated into any application or framework that supports
 [Connect](http://www.senchalabs.org/connect/)-style middleware, including
-[Express](http://expressjs.com/).
+[Express](http://expressjs.com/). The included example lets you quickly set up
+a test server with Express 4 that uses Slice for authentication.
 
 ## Install
 

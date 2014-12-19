@@ -1,17 +1,22 @@
 var express = require('express')
   , passport = require('passport')
   , util = require('util')
+  , session = require('express-session')
+  , cookieParser = require('cookie-parser')
+  , bodyParser = require('body-parser')
+  , morgan = require('morgan')
+  , methodOverride = require('method-override')
   , SliceStrategy = require('passport-slice').Strategy;
 
-var SLICE_CLIENT_ID = "--insert-slice-client-id-here--"
-var SLICE_CLIENT_SECRET = "--insert-slice-client-secret-here--";
+var SLICE_CLIENT_ID = "--insert--id--here--"
+var SLICE_CLIENT_SECRET = "--insert--secret--here--";
 
 
 // Passport session setup.
 //   To support persistent login sessions, Passport needs to be able to
-//   serialize users into and deserialize users out of the session.  Typically,
+//   serialize users into and deserialize users out of the session. Typically,
 //   this will be as simple as storing the user ID when serializing, and finding
-//   the user by ID when deserializing.  However, since this example does not
+//   the user by ID when deserializing. However, since this example does not
 //   have a database of user records, the complete Slice profile is serialized
 //   and deserialized.
 passport.serializeUser(function(user, done) {
@@ -30,14 +35,14 @@ passport.deserializeUser(function(obj, done) {
 passport.use(new SliceStrategy({
     clientID: SLICE_CLIENT_ID,
     clientSecret: SLICE_CLIENT_SECRET,
-    callbackURL: "https://2c8f053f.ngrok.com/auth/slice/callback"
+    callbackURL: "https://www.example.net/auth/slice/callback"
   },
   function(accessToken, refreshToken, profile, done) {
     // asynchronous verification, for effect...
     process.nextTick(function () {
       
       // To keep the example simple, the user's Slice profile is returned to
-      // represent the logged-in user.  In a typical application, you would want
+      // represent the logged-in user. In a typical application, you would want
       // to associate the Slice account with a user record in your database,
       // and return that user instead.
       return done(null, profile);
@@ -48,24 +53,22 @@ passport.use(new SliceStrategy({
 
 
 
-var app = express.createServer();
+var app = express();
 
 // configure Express
-app.configure(function() {
   app.set('views', __dirname + '/views');
   app.set('view engine', 'ejs');
-  app.use(express.logger());
-  app.use(express.cookieParser());
-  app.use(express.bodyParser());
-  app.use(express.methodOverride());
-  app.use(express.session({ secret: 'keyboard cat' }));
+  app.use(morgan('combined', {skip: function (req, res) {return res.statusCode < 400}}));
+  app.use(cookieParser());
+  app.use(bodyParser.urlencoded({extended: true}));
+  app.use(bodyParser.json());
+  app.use(methodOverride());
+  app.use(session({secret: 'keyboard cat', resave: false, saveUninitialized: true}));
   // Initialize Passport!  Also use passport.session() middleware, to support
   // persistent login sessions (recommended).
   app.use(passport.initialize());
   app.use(passport.session());
-  app.use(app.router);
   app.use(express.static(__dirname + '/public'));
-});
 
 
 app.get('/', function(req, res){
@@ -82,8 +85,8 @@ app.get('/login', function(req, res){
 
 // GET /auth/slice
 //   Use passport.authenticate() as route middleware to authenticate the
-//   request.  The first step in Slicd authentication will involve redirecting
-//   the user to slice.com.  After authorization, Slice will redirect the user
+//   request. The first step in Slicd authentication will involve redirecting
+//   the user to slice.com. After authorization, Slice will redirect the user
 //   back to this application at /auth/slice/callback
 app.get('/auth/slice',
   passport.authenticate('slice'),
@@ -94,8 +97,8 @@ app.get('/auth/slice',
 
 // GET /auth/slice/callback
 //   Use passport.authenticate() as route middleware to authenticate the
-//   request.  If authentication fails, the user will be redirected back to the
-//   login page.  Otherwise, the primary route function function will be called,
+//   request. If authentication fails, the user will be redirected back to the
+//   login page. Otherwise, the primary route function function will be called,
 //   which, in this example, will redirect the user to the home page.
 app.get('/auth/slice/callback', 
   passport.authenticate('slice', { failureRedirect: '/login' }),
@@ -112,9 +115,9 @@ app.listen(3000);
 
 
 // Simple route middleware to ensure user is authenticated.
-//   Use this route middleware on any resource that needs to be protected.  If
+//   Use this route middleware on any resource that needs to be protected. If
 //   the request is authenticated (typically via a persistent login session),
-//   the request will proceed.  Otherwise, the user will be redirected to the
+//   the request will proceed. Otherwise, the user will be redirected to the
 //   login page.
 function ensureAuthenticated(req, res, next) {
   if (req.isAuthenticated()) { return next(); }
