@@ -72,6 +72,7 @@ For a complete, working example, refer to the [login example](https://github.com
 
   - [Jared Hanson](https://github.com/jaredhanson)
   This strategy is based off of Jared Hanson's [passport-github](https://github.com/jaredhanson/passport-github).
+  - Thank you for support from [Robert Niimi](https://github.com/robertn702), [Krystal Raphael](https://github.com/Kdr18702), and [Dustin Sinkey](https://github.com/dsinkey).
 
 ## License
 
